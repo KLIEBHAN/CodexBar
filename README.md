@@ -212,13 +212,42 @@ Wondering if CodexBar scans your disk? It doesn’t crawl your filesystem; it re
 - Install/sign in to provider sources you rely on (CLIs, browser cookies, OAuth/device flow, API keys, or local app/config files).
 - Optional: set OpenAI cookies (Automatic or Manual) for Codex dashboard extras.
 
+## Install the latest signed release
+
+To download, verify, install, and launch the latest official GitHub release without a local signing certificate:
+
+```bash
+./Scripts/install_latest_release.sh
+```
+
+The installer requires the official CodexBar bundle identifier, Developer ID team, and notarization before replacing
+`/Applications/CodexBar.app`. Pass `--verify-only` to verify the download without installing it, or `--force` to
+reinstall the current release.
+
 ## Build from source
 Requires macOS 14+ and Swift 6.2+.
 
 ```bash
-./Scripts/package_app.sh        # builds CodexBar.app in-place with ad-hoc signing
-open CodexBar.app
+./Scripts/package_app.sh          # builds CodexBar.app in-place with ad-hoc signing
+open CodexBar.app                 # disposable dev launch; see the Tahoe attribution warning below
+
+# Or install into /Applications and launch the new build through macOS:
+./Scripts/build_install_and_run.sh
+
+# Pull first; build/restart unless this HEAD/configuration still matches the installed bundle:
+./Scripts/pull_build_install_and_run.sh
+
+# Install only; the running installed CodexBar is stopped and remains stopped:
+./Scripts/build_and_install.sh
 ```
+
+The `/Applications` install wrappers require a stable signing identity by default; use `package_app.sh` for an
+ad-hoc local bundle when no signing certificate is available. Replacing the production bundle identifier with an
+ad-hoc signature can invalidate app-group access and macOS Tahoe menu bar state.
+
+The install-and-run wrapper delegates the launch to Finder. On macOS Tahoe, launching a menu bar app directly
+from a disabled terminal can make Control Center attribute and hide its status item under that terminal. The wrapper
+also reports when Console shows Control Center moving the newly launched CodexBar item to its blocked list.
 
 Dev loop:
 ```bash

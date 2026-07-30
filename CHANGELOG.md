@@ -2,8 +2,14 @@
 
 ## 0.46.1 — Unreleased
 
+### Added
+- Local install: add a no-certificate installer that downloads the latest official GitHub release and verifies its version, Developer ID team, and notarization before staged replacement.
+
 ### Changed
 - About: link the Website entry to codex.bar.
+
+### Fixed
+- Local install: require stable signing by default, delegate post-build launches to Finder so macOS Tahoe does not attribute and hide CodexBar's status item under a disabled terminal, and report Control Center blocked-item evidence instead of claiming a clean launch.
 
 ## 0.46.0 — 2026-07-29
 
