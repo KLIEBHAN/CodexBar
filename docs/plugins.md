@@ -401,6 +401,10 @@ Named extra windows accept an optional `usageKnown` boolean (default `true`). Se
 the window remains visible as **Unavailable**, and its placeholder `usedPercent` is not presented as measured usage.
 Detail rows accept optional `progress` (a finite consumed fraction from 0 through 1) and `usageValue` (finite raw usage).
 The host maps the fraction to native progress with `used: progress, total: 1`; `usageValue` is preserved independently.
+An optional `pace` (a finite fraction from 0 through 1, on the same scale as `progress`) is where the fill would be
+under even consumption, for example elapsed time divided by the window length. The bar then shows the same pace tip
+as built-in providers: green while `progress` is at or below `pace`, red once it runs ahead. Omit it to hide the tip.
+`pace` is ignored on rows without `progress`; invalid values fail the fetch.
 An optional row `severity: "normal" | "warning" | "critical"` uses the system green, orange, or red accent;
 warning and critical rows also show a labeled warning symbol. The plugin computes its own thresholds independently
 of `progress`. Omit `severity` (or pass null) to keep the existing provider tint. Invalid values fail the fetch.

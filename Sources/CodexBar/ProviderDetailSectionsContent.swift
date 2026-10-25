@@ -70,10 +70,13 @@ struct ProviderDetailSectionsContent: View {
                     if let progress = row.progress {
                         // The ratio is provider data left unclamped by contract; only the bar's fill
                         // is clamped here, the "used / total" caption keeps the raw numbers.
+                        // Same pace tip as built-in metric rows: green while usage stays at or under pace.
                         UsageProgressBar(
                             percent: min(100, max(0, progress.usedPercent)),
                             tint: Self.progressColor(row.severity, fallback: self.chartColor),
-                            accessibilityLabel: row.label)
+                            accessibilityLabel: row.label,
+                            pacePercent: progress.expectedUsedPercent,
+                            paceOnTop: progress.usedPercent <= progress.expectedUsedPercent ?? .infinity)
                     }
                 }
             }
