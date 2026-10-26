@@ -30,8 +30,37 @@ struct ProviderDetailPaceTests {
     }
 
     @MainActor
-    private static func tipPixels(progress: ProviderDetailSection.Row.Progress) throws -> (red: Int, green: Int) {
-        let row = try ProviderDetailSection.Row(label: "Weekly", value: "—", progress: progress)
+    @Test
+    func `row severity decides the pace tip colour`() throws {
+        let below = try ProviderDetailSection.Row.Progress(used: 0.3, total: 1, expectedUsed: 0.6)
+        let above = try ProviderDetailSection.Row.Progress(used: 0.6, total: 1, expectedUsed: 0.3)
+        let unpacedBelow = try ProviderDetailSection.Row.Progress(used: 0.3, total: 1)
+
+        // Fill below pace: the tip sits on the gray track, so it adds pixels of its own colour to the fill's.
+        let normalBelow = try Self.tipPixels(progress: below, severity: .normal)
+        let normalBaseline = try Self.tipPixels(progress: unpacedBelow, severity: .normal)
+        #expect(normalBelow.green - normalBaseline.green > 20 && normalBelow.red == 0, "\(normalBelow)")
+        let criticalBelow = try Self.tipPixels(progress: below, severity: .critical)
+        let criticalBaseline = try Self.tipPixels(progress: unpacedBelow, severity: .critical)
+        #expect(criticalBelow.red - criticalBaseline.red > 20 && criticalBelow.green == 0, "\(criticalBelow)")
+        // Orange warning fill counts as neither colour, so any red comes from the tip.
+        let warningBelow = try Self.tipPixels(progress: below, severity: .warning)
+        #expect(warningBelow.red > 20 && warningBelow.green == 0, "\(warningBelow)")
+
+        // Fill above pace: the tip sits on the severity-tinted fill and must not show the opposite colour.
+        let criticalAbove = try Self.tipPixels(progress: above, severity: .critical)
+        #expect(criticalAbove.red > 20 && criticalAbove.green == 0, "\(criticalAbove)")
+        let normalAbove = try Self.tipPixels(progress: above, severity: .normal)
+        #expect(normalAbove.green > 20 && normalAbove.red == 0, "\(normalAbove)")
+    }
+
+    @MainActor
+    private static func tipPixels(
+        progress: ProviderDetailSection.Row.Progress,
+        severity: ProviderDetailSection.Row.Severity? = nil) throws -> (red: Int, green: Int)
+    {
+        let row = try ProviderDetailSection.Row(
+            label: "Weekly", value: "—", progress: progress, severity: severity)
         let section = try ProviderDetailSection(rows: [row])
         let renderer = ImageRenderer(content: ProviderDetailSectionsContent(sections: [section], chartColor: .blue)
             .frame(width: 280).padding(12).background(.white).environment(\.colorScheme, .light))

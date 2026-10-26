@@ -27,6 +27,20 @@ struct ProviderDetailSectionsContent: View {
         }
     }
 
+    /// Whether the pace tip shows green (on pace) rather than red (deficit). A plugin severity already encodes
+    /// whether usage runs ahead of pace, including rows whose fill shows the remaining share; without one, the
+    /// fill is read as consumption, like built-in metric rows.
+    private static func paceOnTop(
+        _ progress: ProviderDetailSection.Row.Progress,
+        severity: ProviderDetailSection.Row.Severity?) -> Bool
+    {
+        switch severity {
+        case .normal: true
+        case .warning, .critical: false
+        case nil: progress.usedPercent <= progress.expectedUsedPercent ?? .infinity
+        }
+    }
+
     private func section(_ section: ProviderDetailSection) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             if let title = section.title {
@@ -70,13 +84,12 @@ struct ProviderDetailSectionsContent: View {
                     if let progress = row.progress {
                         // The ratio is provider data left unclamped by contract; only the bar's fill
                         // is clamped here, the "used / total" caption keeps the raw numbers.
-                        // Same pace tip as built-in metric rows: green while usage stays at or under pace.
                         UsageProgressBar(
                             percent: min(100, max(0, progress.usedPercent)),
                             tint: Self.progressColor(row.severity, fallback: self.chartColor),
                             accessibilityLabel: row.label,
                             pacePercent: progress.expectedUsedPercent,
-                            paceOnTop: progress.usedPercent <= progress.expectedUsedPercent ?? .infinity)
+                            paceOnTop: Self.paceOnTop(progress, severity: row.severity))
                     }
                 }
             }

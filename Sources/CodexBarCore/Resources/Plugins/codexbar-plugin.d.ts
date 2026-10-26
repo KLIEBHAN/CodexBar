@@ -97,7 +97,7 @@ interface CodexBarDetailRow {
   severity?: "normal" | "warning" | "critical" | null;
   /** Finite consumed fraction, from 0 through 1 inclusive. */
   progress?: number | null;
-  /** Finite expected consumed fraction under even consumption, from 0 through 1 inclusive; marks pace on the progress bar. Ignored without progress. */
+  /** Finite fraction from 0 through 1 inclusive where the fill would be under even consumption; marks pace on the progress bar. With severity, the tip is green for "normal" and red otherwise; without it, red once progress exceeds pace. Ignored without progress. */
   pace?: number | null;
   /** Finite raw usage, independent of the display string and progress. */
   usageValue?: number | null;
