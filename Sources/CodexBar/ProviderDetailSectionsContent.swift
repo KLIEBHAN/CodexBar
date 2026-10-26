@@ -4,6 +4,7 @@ import SwiftUI
 struct ProviderDetailSectionsContent: View {
     let sections: [ProviderDetailSection]
     let chartColor: Color
+    var paceVisible: Bool = true
     @Environment(\.menuItemHighlighted) private var isHighlighted
 
     var body: some View {
@@ -24,20 +25,6 @@ struct ProviderDetailSectionsContent: View {
         case .warning: Color(nsColor: .systemOrange)
         case .critical: Color(nsColor: .systemRed)
         case nil: fallback
-        }
-    }
-
-    /// Whether the pace tip shows green (on pace) rather than red (deficit). A plugin severity already encodes
-    /// whether usage runs ahead of pace, including rows whose fill shows the remaining share; without one, the
-    /// fill is read as consumption, like built-in metric rows.
-    private static func paceOnTop(
-        _ progress: ProviderDetailSection.Row.Progress,
-        severity: ProviderDetailSection.Row.Severity?) -> Bool
-    {
-        switch severity {
-        case .normal: true
-        case .warning, .critical: false
-        case nil: progress.usedPercent <= progress.expectedUsedPercent ?? .infinity
         }
     }
 
@@ -88,8 +75,8 @@ struct ProviderDetailSectionsContent: View {
                             percent: min(100, max(0, progress.usedPercent)),
                             tint: Self.progressColor(row.severity, fallback: self.chartColor),
                             accessibilityLabel: row.label,
-                            pacePercent: progress.expectedUsedPercent,
-                            paceOnTop: Self.paceOnTop(progress, severity: row.severity))
+                            pacePercent: self.paceVisible ? progress.expectedUsedPercent : nil,
+                            paceOnTop: progress.usedPercent <= progress.expectedUsedPercent ?? .infinity)
                     }
                 }
             }
